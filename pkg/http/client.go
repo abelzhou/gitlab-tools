@@ -14,6 +14,11 @@ var authorization = "Bearer"
 
 var client *resty.Client
 
+const (
+	GITLIB_TOKEN = "gitlab_token"
+	GITLAB_URL   = "gitlab_url"
+)
+
 func init() {
 	client = resty.New()
 	client.RetryCount = 3
@@ -22,10 +27,11 @@ func init() {
 	client.SetJSONEscapeHTML(false)
 }
 
+// GetRequest 发送get请求
 func GetRequest(url string, resp interface{}) error {
-	token := viper.GetString("gitlab_token")
+	token := viper.GetString(GITLIB_TOKEN)
 	authorization = "Bearer " + token
-	url = viper.GetString("gitlab_url") + url
+	url = viper.GetString(GITLAB_URL) + url
 	send, err := client.R().SetHeader("Authorization", authorization).SetResult(&resp).Get(url)
 	if err != nil {
 		return err
