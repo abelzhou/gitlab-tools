@@ -5,7 +5,6 @@ package gitlab
 
 import (
 	"fmt"
-	"google.golang.org/appengine/log"
 	"gt/pkg/http"
 	"strings"
 	"time"
@@ -22,7 +21,7 @@ func GetProject(keyword string, namespace string) []Project {
 		url := fmt.Sprintf("/api/v4/projects?per_page=%d&page=%d", pageSize, page)
 		err := http.GetRequest(url, &projectList)
 		if err != nil {
-			log.Errorf(nil, "获取项目列表失败:%s", err.Error())
+			fmt.Println(fmt.Sprintf("ERROR 获取项目列表失败:%s", err.Error()))
 		}
 		if len(projectList) == 0 {
 			break
