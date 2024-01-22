@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"gt/pkg/gitlab"
+	"strings"
 )
 
 var (
 	namespace string
 	keyword   string
+	split     string
 )
 
 var GetCmd = &cobra.Command{
@@ -28,12 +30,21 @@ func getFunc(cmd *cobra.Command, args []string) {
 	case "project":
 		projectList := gitlab.GetProject(keyword, namespace)
 		for _, project := range projectList {
-			fmt.Printf("%s::%s::%s::%s::%s::%s\n",
+			project.Description = strings.ReplaceAll(project.Description, "\r\n", " ")
+			project.Description = strings.ReplaceAll(project.Description, "\n", " ")
+			project.Description = strings.ReplaceAll(project.Description, "\r", " ")
+			project.Description = strings.ReplaceAll(project.Description, "::", "：：")
+			fmt.Printf("%s%s%s%s%s%s%s%s%s%s%s\n",
 				project.Name,
+				split,
 				project.Namespace.Name,
+				split,
 				project.PathWithNamespace,
+				split,
 				project.SSHURLToRepo,
+				split,
 				project.CreatedAt.Format("2006-01-02 15:04:05"),
+				split,
 				project.Description,
 			)
 		}
@@ -46,4 +57,5 @@ func getFunc(cmd *cobra.Command, args []string) {
 func GetInit() {
 	GetCmd.PersistentFlags().StringVarP(&keyword, "keyword", "k", "", "关键字")
 	GetCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "命名空间")
+	GetCmd.PersistentFlags().StringVarP(&split, "split", "s", "::", "分隔符")
 }
