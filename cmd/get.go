@@ -10,12 +10,6 @@ import (
 	"strings"
 )
 
-var (
-	namespace string
-	keyword   string
-	split     string
-)
-
 var GetCmd = &cobra.Command{
 	Use:       "get",
 	Short:     "获取信息",

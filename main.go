@@ -6,6 +6,7 @@ package main
 import (
 	"github.com/spf13/viper"
 	"gt/cmd"
+	"gt/pkg/gitlab"
 	"log"
 )
 
@@ -23,5 +24,6 @@ func init() {
 	}
 }
 func main() {
+	gitlab.InitGitlabClient()
 	cmd.Execute()
 }

@@ -5,6 +5,7 @@ package gitlab
 
 import (
 	"fmt"
+	"github.com/xanzy/go-gitlab"
 	"gt/pkg/http"
 	"strings"
 	"time"
@@ -38,6 +39,69 @@ func GetProject(keyword string, namespace string) []Project {
 	}
 
 	return retProjectList
+}
+
+func CreateProject(namespace, name, desc string) {
+	name = strings.TrimSpace(name)
+	desc = strings.TrimSpace(desc)
+	if len(name) == 0 {
+		fmt.Println("项目名称不能为空")
+		return
+	}
+	if len(desc) == 0 {
+		fmt.Println("项目描述不能为空")
+		return
+	}
+
+	//查询namespace
+	namespaceList, resp, err := gitlabClient.Namespaces.SearchNamespace(namespace)
+	if err != nil {
+		fmt.Println("查询命名空间错误")
+		return
+	}
+	if resp.TotalItems <= 1 {
+		fmt.Println("未检索到命名空间")
+		return
+	}
+
+	if len(namespaceList) <= 1 {
+		fmt.Println("未检索到命名空间列表")
+		return
+	}
+
+	var namespaceObj *gitlab.Namespace
+	for i := 0; i < len(namespaceList); i++ {
+		if namespaceList[i].Name == namespace {
+			namespaceObj = namespaceList[i]
+			break
+		}
+	}
+
+	if namespaceObj == nil {
+		fmt.Println(fmt.Sprintf("未找到命名空间:%s", namespace))
+	}
+
+	p := &gitlab.CreateProjectOptions{
+		Name:                 gitlab.Ptr(name),
+		NamespaceID:          gitlab.Ptr(namespaceObj.ID),
+		Description:          gitlab.Ptr(desc),
+		InitializeWithReadme: gitlab.Ptr(true),
+		Visibility:           gitlab.Ptr(gitlab.PrivateVisibility),
+	}
+
+	project, resp, err := gitlabClient.Projects.CreateProject(p)
+	if err != nil {
+		fmt.Println("项目创建失败")
+		fmt.Println(err.Error())
+		return
+	}
+	if project.ID != 0 {
+		fmt.Println(fmt.Sprintf("项目创建成功! \nNAME: %s \nNAMESPACE: %s \nID: %d \nPATH: %s ", project.Name, project.Namespace.Name, project.ID, project.WebURL))
+		return
+	}
+
+	fmt.Println("项目创建失败")
+
 }
 
 type Project struct {

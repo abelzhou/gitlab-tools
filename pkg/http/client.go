@@ -6,6 +6,7 @@ package http
 import (
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/viper"
+	"gt/pkg/consts"
 	"net/http"
 	"time"
 )
@@ -13,11 +14,6 @@ import (
 var authorization = "Bearer"
 
 var client *resty.Client
-
-const (
-	GITLIB_TOKEN = "gitlab_token"
-	GITLAB_URL   = "gitlab_url"
-)
 
 func init() {
 	client = resty.New()
@@ -29,9 +25,9 @@ func init() {
 
 // GetRequest 发送get请求
 func GetRequest(url string, resp interface{}) error {
-	token := viper.GetString(GITLIB_TOKEN)
+	token := viper.GetString(consts.GITLIB_TOKEN)
 	authorization = "Bearer " + token
-	url = viper.GetString(GITLAB_URL) + url
+	url = viper.GetString(consts.GITLAB_URL) + url
 	send, err := client.R().SetHeader("Authorization", authorization).SetResult(&resp).Get(url)
 	if err != nil {
 		return err

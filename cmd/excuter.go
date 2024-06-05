@@ -10,8 +10,10 @@ import (
 
 func Execute() {
 	GetInit()
+	CreateInit()
 	var rootCmd = &cobra.Command{Use: "app", Args: cobra.MinimumNArgs(1)}
 	rootCmd.AddCommand(GetCmd)
+	rootCmd.AddCommand(CreateCmd)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(0)
