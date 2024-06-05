@@ -5,6 +5,5 @@ package cmd
 
 var (
 	namespace string
-	keyword   string
 	split     string
 )

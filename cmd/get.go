@@ -13,16 +13,21 @@ import (
 var GetCmd = &cobra.Command{
 	Use:       "get",
 	Short:     "获取信息",
-	ValidArgs: []string{"project"},
-	Args:      cobra.MatchAll(cobra.MinimumNArgs(1), cobra.OnlyValidArgs),
+	ValidArgs: []string{"project", "namespace"},
+	Args:      cobra.MatchAll(cobra.MinimumNArgs(1)),
 	Long:      "诸如一些资源类的信息，譬如project等",
+	Example:   "get project -n namespace \nget project $projectKeyword -n namespace \n get namespace $namespaceKeyword",
 	Run:       getFunc,
 }
 
 func getFunc(cmd *cobra.Command, args []string) {
+	keywords := ""
+	if len(args) > 1 {
+		keywords = args[1]
+	}
 	switch args[0] {
 	case "project":
-		projectList := gitlab.GetProject(keyword, namespace)
+		projectList := gitlab.GetProject(keywords, namespace)
 		for _, project := range projectList {
 			project.Description = strings.ReplaceAll(project.Description, "\r\n", " ")
 			project.Description = strings.ReplaceAll(project.Description, "\n", " ")
@@ -42,6 +47,8 @@ func getFunc(cmd *cobra.Command, args []string) {
 				project.Description,
 			)
 		}
+	case "namespace":
+		gitlab.GetNamespace(keywords)
 	default:
 		fmt.Println(cmd.UsageString())
 	}
@@ -49,7 +56,6 @@ func getFunc(cmd *cobra.Command, args []string) {
 }
 
 func GetInit() {
-	GetCmd.PersistentFlags().StringVarP(&keyword, "keyword", "k", "", "关键字")
 	GetCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "命名空间")
 	GetCmd.PersistentFlags().StringVarP(&split, "split", "s", "::", "分隔符")
 }
