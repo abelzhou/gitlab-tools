@@ -10,13 +10,17 @@ import (
 	"strings"
 )
 
+var getExample = "get project -n namespace \n" +
+	"get project {projectKeyword} -n namespace \n" +
+	"get namespace {namespaceKeyword}\n"
+
 var GetCmd = &cobra.Command{
 	Use:       "get",
 	Short:     "获取信息",
 	ValidArgs: []string{"project", "namespace"},
 	Args:      cobra.MatchAll(cobra.MinimumNArgs(1)),
 	Long:      "诸如一些资源类的信息，譬如project等",
-	Example:   "get project -n namespace \nget project $projectKeyword -n namespace \n get namespace $namespaceKeyword",
+	Example:   getExample,
 	Run:       getFunc,
 }
 
