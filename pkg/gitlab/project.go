@@ -104,6 +104,80 @@ func CreateProject(namespace, name, desc string) {
 
 }
 
+func GetProjectMember(projectName string) {
+	listProject, resp, err := gitlabClient.Projects.ListProjects(&gitlab.ListProjectsOptions{Search: gitlab.Ptr(projectName)})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if resp.TotalItems == 0 {
+		fmt.Println("找不到对应的项目")
+		return
+	}
+	if len(listProject) < 1 {
+		fmt.Println("找不到对应的项目列表")
+		return
+	}
+
+	var currentProject *gitlab.Project
+	for i := 0; i < len(listProject); i++ {
+		if listProject[i].Name == projectName {
+			currentProject = listProject[i]
+		}
+	}
+	if currentProject == nil {
+		fmt.Println("没有匹配到项目，检查是否为如下项目：")
+		for i := 0; i < len(listProject); i++ {
+			fmt.Println(fmt.Sprintf("%d %s %s", listProject[i].ID, listProject[i].Namespace.Name, listProject[i].Name))
+		}
+		return
+	}
+
+	fmt.Println(fmt.Sprintf("ProjectName: %s\nNamespace: %s", currentProject.Name, currentProject.Namespace.Name))
+
+	projectUsers, resp, err := gitlabClient.Projects.ListProjectsUsers(currentProject.ID, &gitlab.ListProjectUserOptions{ListOptions: gitlab.ListOptions{PerPage: 999}})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if resp.TotalItems == 0 {
+		fmt.Println("该项目不存在用户")
+		return
+	}
+	for i := 0; i < len(projectUsers); i++ {
+		fmt.Println(fmt.Sprintf("%d %s %s %s", projectUsers[i].ID, projectUsers[i].Username, projectUsers[i].Username, projectUsers[i].State))
+	}
+
+}
+
+// 根据用户名获取用户下的项目 (未完成)
+func GetProjectByUserName(username string) {
+	listUsers := GetUsers(username, false)
+	var currentUser *gitlab.User
+	for i := 0; i < len(listUsers); i++ {
+		if listUsers[i].Username == username {
+			currentUser = listUsers[i]
+		}
+	}
+	if currentUser == nil {
+		fmt.Println("没找到用户,检索到的用户如下：")
+		for i := 0; i < len(listUsers); i++ {
+			fmt.Println(fmt.Sprintf("%s", listUsers[i].Username))
+		}
+		return
+	}
+
+	projects, resp, err := gitlabClient.Projects.ListUserContributedProjects(currentUser.ID, &gitlab.ListProjectsOptions{})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	for i := 0; i < len(projects); i++ {
+		fmt.Println(fmt.Sprintf("%d %s %v", projects[i].ID, projects[i].Namespace.Name, projects[i].Name))
+	}
+	fmt.Println(fmt.Sprintf("total: %d", resp.TotalItems))
+}
+
 type Project struct {
 	ID                                        int                       `json:"id"`
 	Description                               string                    `json:"description"`

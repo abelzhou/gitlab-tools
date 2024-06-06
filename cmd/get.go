@@ -52,10 +52,14 @@ func getFunc(cmd *cobra.Command, args []string) {
 				project.Description,
 			)
 		}
+	case "projectmember":
+		gitlab.GetProjectMember(keywords)
 	case "namespace":
 		gitlab.GetNamespace(keywords)
 	case "user":
-		gitlab.GetUsers(keywords)
+		gitlab.GetUsers(keywords, true)
+	case "userproject":
+		gitlab.GetProjectByUserName(keywords)
 	default:
 		fmt.Println(cmd.UsageString())
 	}
