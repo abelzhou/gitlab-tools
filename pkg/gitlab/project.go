@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/xanzy/go-gitlab"
 	"gt/pkg/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -105,31 +106,8 @@ func CreateProject(namespace, name, desc string) {
 }
 
 func GetProjectMember(projectName string) {
-	listProject, resp, err := gitlabClient.Projects.ListProjects(&gitlab.ListProjectsOptions{Search: gitlab.Ptr(projectName)})
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	if resp.TotalItems == 0 {
-		fmt.Println("找不到对应的项目")
-		return
-	}
-	if len(listProject) < 1 {
-		fmt.Println("找不到对应的项目列表")
-		return
-	}
-
-	var currentProject *gitlab.Project
-	for i := 0; i < len(listProject); i++ {
-		if listProject[i].Name == projectName {
-			currentProject = listProject[i]
-		}
-	}
+	currentProject := getOneProjectByName(projectName)
 	if currentProject == nil {
-		fmt.Println("没有匹配到项目，检查是否为如下项目：")
-		for i := 0; i < len(listProject); i++ {
-			fmt.Println(fmt.Sprintf("%d %s %s", listProject[i].ID, listProject[i].Namespace.Name, listProject[i].Name))
-		}
 		return
 	}
 
@@ -150,20 +128,80 @@ func GetProjectMember(projectName string) {
 
 }
 
-// 根据用户名获取用户下的项目 (未完成)
-func GetProjectByUserName(username string) {
-	listUsers := GetUsers(username, false)
-	var currentUser *gitlab.User
-	for i := 0; i < len(listUsers); i++ {
-		if listUsers[i].Username == username {
-			currentUser = listUsers[i]
+func getOneProjectByName(projectName string) *gitlab.Project {
+	listProject, resp, err := gitlabClient.Projects.ListProjects(&gitlab.ListProjectsOptions{Search: gitlab.Ptr(projectName)})
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+	if resp.TotalItems == 0 {
+		fmt.Println("找不到对应的项目")
+		return nil
+	}
+	if len(listProject) < 1 {
+		fmt.Println("找不到对应的项目列表")
+		return nil
+	}
+
+	var currentProject *gitlab.Project
+	for i := 0; i < len(listProject); i++ {
+		if listProject[i].Name == projectName {
+			currentProject = listProject[i]
 		}
 	}
-	if currentUser == nil {
-		fmt.Println("没找到用户,检索到的用户如下：")
-		for i := 0; i < len(listUsers); i++ {
-			fmt.Println(fmt.Sprintf("%s", listUsers[i].Username))
+	if currentProject == nil {
+		fmt.Println("没有匹配到项目，检查是否为如下项目：")
+		for i := 0; i < len(listProject); i++ {
+			fmt.Println(fmt.Sprintf("%d %s %s", listProject[i].ID, listProject[i].Namespace.Name, listProject[i].Name))
 		}
+		return nil
+	}
+	return currentProject
+}
+
+func AddInvites(projectName string, accessLevel *gitlab.AccessLevelValue, usernames string) {
+	currentProject := getOneProjectByName(projectName)
+	if currentProject == nil {
+		return
+	}
+	listUsername := strings.Split(usernames, ",")
+	var listRequiredUsername []string
+	for i := 0; i < len(listUsername); i++ {
+		currentUser := getOneUserByUsername(listUsername[i])
+		if currentUser == nil {
+			continue
+		}
+		listRequiredUsername = append(listRequiredUsername, strconv.Itoa(currentUser.ID))
+	}
+
+	if len(listRequiredUsername) == 0 || len(listRequiredUsername) != len(listUsername) {
+		fmt.Println("添加失败")
+		return
+	}
+
+	userIds := strings.Join(listRequiredUsername, ",")
+
+	invitesOpt := &gitlab.InvitesOptions{
+		UserID:      userIds,
+		AccessLevel: accessLevel,
+	}
+
+	ret, _, err := gitlabClient.Invites.ProjectInvites(currentProject.ID, invitesOpt)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if ret != nil {
+		fmt.Println(fmt.Sprintf("%s /n %v", ret.Status, ret.Message))
+	} else {
+		fmt.Println("添加失败！")
+	}
+}
+
+// 根据用户名获取用户下的项目 (未完成)
+func GetProjectByUserName(username string) {
+	currentUser := getOneUserByUsername(username)
+	if currentUser == nil {
 		return
 	}
 
@@ -176,6 +214,24 @@ func GetProjectByUserName(username string) {
 		fmt.Println(fmt.Sprintf("%d %s %v", projects[i].ID, projects[i].Namespace.Name, projects[i].Name))
 	}
 	fmt.Println(fmt.Sprintf("total: %d", resp.TotalItems))
+}
+
+func getOneUserByUsername(username string) *gitlab.User {
+	listUsers := GetUsers(username, false)
+	var currentUser *gitlab.User
+	for i := 0; i < len(listUsers); i++ {
+		if listUsers[i].Username == username {
+			currentUser = listUsers[i]
+		}
+	}
+	if currentUser == nil {
+		fmt.Println(fmt.Sprintf("没找到用户: %s ,检索到的可能用户如下：", username))
+		for i := 0; i < len(listUsers); i++ {
+			fmt.Println(fmt.Sprintf("%s", listUsers[i].Username))
+		}
+		return nil
+	}
+	return currentUser
 }
 
 type Project struct {
