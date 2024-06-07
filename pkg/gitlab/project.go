@@ -192,7 +192,7 @@ func AddInvites(projectName string, accessLevel *gitlab.AccessLevelValue, userna
 		return
 	}
 	if ret != nil {
-		fmt.Println(fmt.Sprintf("%s /n %v", ret.Status, ret.Message))
+		fmt.Println(fmt.Sprintf("%s \n %v", ret.Status, ret.Message))
 	} else {
 		fmt.Println("添加失败！")
 	}

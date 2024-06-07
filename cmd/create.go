@@ -27,6 +27,11 @@ var CreateCmd = &cobra.Command{
 func createFunc(cmd *cobra.Command, args []string) {
 	switch args[0] {
 	case "project":
+		namespace = strings.TrimSpace(namespace)
+		if namespace == "" {
+			fmt.Println(cmd.UsageString())
+			return
+		}
 		gitlab.CreateProject(namespace, args[1], args[2])
 	case "invites":
 		if len(args) < 4 {
