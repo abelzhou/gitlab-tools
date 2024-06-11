@@ -6,40 +6,65 @@ package gitlab
 import (
 	"fmt"
 	"github.com/xanzy/go-gitlab"
-	"gt/pkg/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func GetProject(keyword string, namespace string) []Project {
-	//获得全部的项目
-	var retProjectList []Project
-	var projectList []Project
-	pageSize := 100
-	page := 1
-	for {
+func GetProject(keyword string, namespace string) []*gitlab.Project {
 
-		url := fmt.Sprintf("/api/v4/projects?per_page=%d&page=%d", pageSize, page)
-		err := http.GetRequest(url, &projectList)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("ERROR 获取项目列表失败:%s", err.Error()))
-		}
-		if len(projectList) == 0 {
-			break
-		}
-		page++
-		for _, project := range projectList {
-			if namespace != "" && project.Namespace.Name != namespace {
-				continue
-			}
-			if strings.Contains(project.Name, keyword) {
-				retProjectList = append(retProjectList, project)
-			}
-		}
+	var retListProject []*gitlab.Project
+	listProject, _, err := gitlabClient.Projects.ListProjects(
+		&gitlab.ListProjectsOptions{
+			ListOptions: gitlab.ListOptions{PerPage: 9999},
+			Search:      gitlab.Ptr(keyword),
+		},
+	)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
 	}
 
-	return retProjectList
+	if namespace == "" {
+		return listProject
+	}
+
+	for i := 0; i < len(listProject); i++ {
+		if listProject[i].Namespace.Name != namespace {
+			continue
+		}
+		retListProject = append(retListProject, listProject[i])
+	}
+
+	return retListProject
+
+	////获得全部的项目
+	//var retProjectList []Project
+	//var projectList []Project
+	//pageSize := 100
+	//page := 1
+	//for {
+	//
+	//	url := fmt.Sprintf("/api/v4/projects?per_page=%d&page=%d", pageSize, page)
+	//	err := http.GetRequest(url, &projectList)
+	//	if err != nil {
+	//		fmt.Println(fmt.Sprintf("ERROR 获取项目列表失败:%s", err.Error()))
+	//	}
+	//	if len(projectList) == 0 {
+	//		break
+	//	}
+	//	page++
+	//	for _, project := range projectList {
+	//		if namespace != "" && project.Namespace.Name != namespace {
+	//			continue
+	//		}
+	//		if strings.Contains(project.Name, keyword) {
+	//			retProjectList = append(retProjectList, project)
+	//		}
+	//	}
+	//}
+	//
+	//return retProjectList
 }
 
 func CreateProject(namespace, name, desc string) {
@@ -129,7 +154,7 @@ func GetProjectMember(projectName string) {
 }
 
 func getOneProjectByName(projectName string) *gitlab.Project {
-	listProject, resp, err := gitlabClient.Projects.ListProjects(&gitlab.ListProjectsOptions{Search: gitlab.Ptr(projectName)})
+	listProject, resp, err := gitlabClient.Projects.ListProjects(&gitlab.ListProjectsOptions{ListOptions: gitlab.ListOptions{PerPage: 9999}, Search: gitlab.Ptr(projectName)})
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil

@@ -32,10 +32,10 @@ func getFunc(cmd *cobra.Command, args []string) {
 	}
 	switch args[0] {
 	case "project":
-		if namespace == "" {
-			fmt.Println(cmd.UsageString())
-			return
-		}
+		//if namespace == "" {
+		//	fmt.Println(cmd.UsageString())
+		//	return
+		//}
 		projectList := gitlab.GetProject(keywords, namespace)
 		for _, project := range projectList {
 			project.Description = strings.ReplaceAll(project.Description, "\r\n", " ")
