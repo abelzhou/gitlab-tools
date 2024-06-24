@@ -142,7 +142,8 @@ func getOneProjectByName(projectName string) *gitlab.Project {
 
 	var currentProject *gitlab.Project
 	for i := 0; i < len(listProject); i++ {
-		if listProject[i].Name == projectName {
+		// 有些项目建立后前后有空格情况
+		if strings.TrimSpace(listProject[i].Name) == projectName {
 			currentProject = listProject[i]
 		}
 	}
