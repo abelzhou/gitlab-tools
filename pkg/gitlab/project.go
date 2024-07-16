@@ -102,7 +102,7 @@ func CreateProject(namespace, name, desc string) {
 
 }
 
-func GetProjectMember(projectName string) {
+func GetProjectUser(projectName string) {
 	currentProject := getOneProjectByName(projectName)
 	if currentProject == nil {
 		return
@@ -120,7 +120,7 @@ func GetProjectMember(projectName string) {
 		return
 	}
 	for i := 0; i < len(projectUsers); i++ {
-		fmt.Println(fmt.Sprintf("%d %s %s %s", projectUsers[i].ID, projectUsers[i].Username, projectUsers[i].Username, projectUsers[i].State))
+		fmt.Println(fmt.Sprintf("%d %s %s %s", projectUsers[i].ID, projectUsers[i].Name, projectUsers[i].Username, projectUsers[i].State))
 	}
 
 }

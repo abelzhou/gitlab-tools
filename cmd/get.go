@@ -13,12 +13,13 @@ import (
 var getExample = "get project -n namespace \n" +
 	"get project {projectKeyword} -n namespace \n" +
 	"get namespace {namespaceKeyword}\n" +
-	"get user {username}\n"
+	"get user {username}\n" +
+	"get projectuser {projectKeyword}\n"
 
 var GetCmd = &cobra.Command{
 	Use:       "get",
 	Short:     "获取信息",
-	ValidArgs: []string{"project", "namespace", "user"},
+	ValidArgs: []string{"project", "namespace", "user", "projectuser"},
 	Args:      cobra.MatchAll(cobra.MinimumNArgs(1)),
 	Long:      "诸如一些资源类的信息，譬如project等",
 	Example:   getExample,
@@ -56,8 +57,8 @@ func getFunc(cmd *cobra.Command, args []string) {
 				project.Description,
 			)
 		}
-	case "projectmember":
-		gitlab.GetProjectMember(keywords)
+	case "projectuser":
+		gitlab.GetProjectUser(keywords)
 	case "namespace":
 		gitlab.GetNamespace(keywords)
 	case "user":
