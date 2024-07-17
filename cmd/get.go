@@ -7,19 +7,19 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"gt/pkg/gitlab"
-	"strings"
 )
 
-var getExample = "get project -n namespace \n" +
-	"get project {projectKeyword} -n namespace \n" +
-	"get namespace {namespaceKeyword}\n" +
-	"get user {username}\n" +
-	"get projectuser {projectKeyword}\n"
+var getExample = "get project -n namespace    --获取命名空间下的全部项目\n" +
+	"get project {projectKeyword} -n namespace    --获取明明空间下的模糊匹配项目\n" +
+	"get namespace {namespaceKeyword}    --查找命名空间\n" +
+	"get user {username}    --查找用户\n" +
+	"get projectuser {projectKeyword}    --获取项目的全部用户\n" +
+	"get userproject {userKeyword} -n namespace   --获取用户参与的全部项目（性能较慢）\n"
 
 var GetCmd = &cobra.Command{
 	Use:       "get",
 	Short:     "获取信息",
-	ValidArgs: []string{"project", "namespace", "user", "projectuser"},
+	ValidArgs: []string{"project", "namespace", "user", "projectuser", "userproject"},
 	Args:      cobra.MatchAll(cobra.MinimumNArgs(1)),
 	Long:      "诸如一些资源类的信息，譬如project等",
 	Example:   getExample,
@@ -37,28 +37,11 @@ func getFunc(cmd *cobra.Command, args []string) {
 		//	fmt.Println(cmd.UsageString())
 		//	return
 		//}
-		projectList := gitlab.GetProject(keywords, namespace)
-		for _, project := range projectList {
-			project.Description = strings.ReplaceAll(project.Description, "\r\n", " ")
-			project.Description = strings.ReplaceAll(project.Description, "\n", " ")
-			project.Description = strings.ReplaceAll(project.Description, "\r", " ")
-			project.Description = strings.ReplaceAll(project.Description, "::", "：：")
-			fmt.Printf("%s%s%s%s%s%s%s%s%s%s%s\n",
-				project.Name,
-				split,
-				project.Namespace.Name,
-				split,
-				project.PathWithNamespace,
-				split,
-				project.SSHURLToRepo,
-				split,
-				project.CreatedAt.Format("2006-01-02 15:04:05"),
-				split,
-				project.Description,
-			)
-		}
+		gitlab.GetProject(keywords, namespace, true, split)
 	case "projectuser":
 		gitlab.GetProjectUser(keywords)
+	case "userproject":
+		gitlab.GetUserProject(keywords, namespace, true, split)
 	case "namespace":
 		gitlab.GetNamespace(keywords)
 	case "user":

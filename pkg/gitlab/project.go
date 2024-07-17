@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetProject(keyword string, namespace string) []*gitlab.Project {
+func GetProject(keyword string, namespace string, printFlag bool, split string) []*gitlab.Project {
 
 	var retListProject []*gitlab.Project
 	listProject, _, err := gitlabClient.Projects.ListProjects(
@@ -33,6 +33,9 @@ func GetProject(keyword string, namespace string) []*gitlab.Project {
 			continue
 		}
 		retListProject = append(retListProject, listProject[i])
+		if printFlag {
+			printProjectInfo(listProject[i], split)
+		}
 	}
 
 	return retListProject
@@ -110,7 +113,7 @@ func GetProjectUser(projectName string) {
 
 	fmt.Println(fmt.Sprintf("ProjectName: %s\nNamespace: %s", currentProject.Name, currentProject.Namespace.Name))
 
-	projectUsers, resp, err := gitlabClient.Projects.ListProjectsUsers(currentProject.ID, &gitlab.ListProjectUserOptions{ListOptions: gitlab.ListOptions{PerPage: 999}})
+	projectUsers, resp, err := gitlabClient.Projects.ListProjectsUsers(currentProject.ID, &gitlab.ListProjectUserOptions{ListOptions: gitlab.ListOptions{PerPage: 9999}})
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -196,6 +199,26 @@ func AddInvites(projectName string, accessLevel *gitlab.AccessLevelValue, userna
 	}
 }
 
+func printProjectInfo(project *gitlab.Project, split string) {
+	project.Description = strings.ReplaceAll(project.Description, "\r\n", " ")
+	project.Description = strings.ReplaceAll(project.Description, "\n", " ")
+	project.Description = strings.ReplaceAll(project.Description, "\r", " ")
+	project.Description = strings.ReplaceAll(project.Description, "::", "：：")
+	fmt.Printf("%s%s%s%s%s%s%s%s%s%s%s\n",
+		project.Name,
+		split,
+		project.Namespace.Name,
+		split,
+		project.PathWithNamespace,
+		split,
+		project.SSHURLToRepo,
+		split,
+		project.CreatedAt.Format("2006-01-02 15:04:05"),
+		split,
+		project.Description,
+	)
+}
+
 // 根据用户名获取用户下的项目 (未完成)
 func GetProjectByUserName(username string) {
 	currentUser := getOneUserByUsername(username)
@@ -212,22 +235,4 @@ func GetProjectByUserName(username string) {
 		fmt.Println(fmt.Sprintf("%d %s %v", projects[i].ID, projects[i].Namespace.Name, projects[i].Name))
 	}
 	fmt.Println(fmt.Sprintf("total: %d", resp.TotalItems))
-}
-
-func getOneUserByUsername(username string) *gitlab.User {
-	listUsers := GetUsers(username, false)
-	var currentUser *gitlab.User
-	for i := 0; i < len(listUsers); i++ {
-		if listUsers[i].Username == username {
-			currentUser = listUsers[i]
-		}
-	}
-	if currentUser == nil {
-		fmt.Println(fmt.Sprintf("没找到用户: %s ,检索到的可能用户如下：", username))
-		for i := 0; i < len(listUsers); i++ {
-			fmt.Println(fmt.Sprintf("%s", listUsers[i].Username))
-		}
-		return nil
-	}
-	return currentUser
 }
