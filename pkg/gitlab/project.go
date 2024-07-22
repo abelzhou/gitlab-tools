@@ -13,28 +13,39 @@ import (
 func GetProject(keyword string, namespace string, printFlag bool, split string) []*gitlab.Project {
 
 	var retListProject []*gitlab.Project
-	listProject, _, err := gitlabClient.Projects.ListProjects(
-		&gitlab.ListProjectsOptions{
-			ListOptions: gitlab.ListOptions{PerPage: 9999},
-			Search:      gitlab.Ptr(keyword),
-		},
-	)
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil
+	var allListProject []*gitlab.Project
+	page := 1
+
+	for {
+		listProject, resp, err := gitlabClient.Projects.ListProjects(
+			&gitlab.ListProjectsOptions{
+				ListOptions: gitlab.ListOptions{PerPage: 100, Page: page},
+				Search:      gitlab.Ptr(keyword),
+			},
+		)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil
+		}
+		if page >= resp.TotalPages {
+			break
+		}
+		page++
+
+		allListProject = append(allListProject, listProject...)
 	}
 
 	if namespace == "" {
-		return listProject
+		return allListProject
 	}
 
-	for i := 0; i < len(listProject); i++ {
-		if listProject[i].Namespace.Name != namespace {
+	for i := 0; i < len(allListProject); i++ {
+		if allListProject[i].Namespace.Name != namespace {
 			continue
 		}
-		retListProject = append(retListProject, listProject[i])
+		retListProject = append(retListProject, allListProject[i])
 		if printFlag {
-			printProjectInfo(listProject[i], split)
+			printProjectInfo(allListProject[i], split)
 		}
 	}
 
