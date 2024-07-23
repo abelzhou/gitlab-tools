@@ -34,7 +34,7 @@ func GetUsers(username string, printFlag bool) []*gitlab.User {
 				if listUsers[i].LastSignInAt != nil {
 					lastSignInTime = listUsers[i].LastSignInAt.Format("20060102")
 				}
-				fmt.Println(fmt.Sprintf("%d %s %s %s %d %s", listUsers[i].ID, listUsers[i].Name, listUsers[i].Username, listUsers[i].State, listUsers[i].ProjectsLimit, lastSignInTime))
+				fmt.Println(fmt.Sprintf("%d %s %s %s %s", listUsers[i].ID, listUsers[i].Name, listUsers[i].Username, listUsers[i].State, lastSignInTime))
 			}
 
 		}
