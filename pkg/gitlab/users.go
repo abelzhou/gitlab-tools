@@ -9,24 +9,44 @@ import (
 )
 
 func GetUsers(username string, printFlag bool) []*gitlab.User {
-	listUserOpt := &gitlab.ListUsersOptions{
-		ListOptions: gitlab.ListOptions{PerPage: 999},
-		Search:      gitlab.Ptr(username),
-	}
-	listUsers, resp, err := gitlabClient.Users.ListUsers(listUserOpt)
-	if err != nil {
-		fmt.Println(err.Error())
-		return listUsers
-	}
+	page := 1
+	orderBy := "updated_at"
+	var allUsers []*gitlab.User
 	if printFlag {
-		for i := 0; i < len(listUsers); i++ {
-			fmt.Println(fmt.Sprintf("%d %s %s ", listUsers[i].ID, listUsers[i].Name, listUsers[i].Username))
-		}
-
-		fmt.Println(fmt.Sprintf("Total: %d", resp.TotalItems))
+		fmt.Println(fmt.Sprintf("ID Name UserName State LastSignInTime"))
 	}
 
-	return listUsers
+	for {
+
+		listUserOpt := &gitlab.ListUsersOptions{
+			ListOptions: gitlab.ListOptions{PerPage: 999, Page: page},
+			Search:      gitlab.Ptr(username),
+			OrderBy:     &orderBy,
+		}
+		listUsers, resp, err := gitlabClient.Users.ListUsers(listUserOpt)
+		if err != nil {
+			fmt.Println(err.Error())
+			return listUsers
+		}
+		if printFlag {
+			for i := 0; i < len(listUsers); i++ {
+				lastSignInTime := "未登录过"
+				if listUsers[i].LastSignInAt != nil {
+					lastSignInTime = listUsers[i].LastSignInAt.Format("20060102")
+				}
+				fmt.Println(fmt.Sprintf("%d %s %s %s %d %s", listUsers[i].ID, listUsers[i].Name, listUsers[i].Username, listUsers[i].State, listUsers[i].ProjectsLimit, lastSignInTime))
+			}
+
+		}
+		allUsers = append(allUsers, listUsers...)
+		if page >= resp.TotalPages {
+			break
+		}
+		page++
+
+	}
+
+	return allUsers
 }
 
 func GetUserProject(username, namespace string, printFlag bool, split string) []*gitlab.Project {
