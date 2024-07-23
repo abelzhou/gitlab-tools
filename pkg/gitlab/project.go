@@ -27,12 +27,12 @@ func GetProject(keyword string, namespace string, printFlag bool, split string) 
 			fmt.Println(err.Error())
 			return nil
 		}
+		allListProject = append(allListProject, listProject...)
 		if page >= resp.TotalPages {
 			break
 		}
 		page++
 
-		allListProject = append(allListProject, listProject...)
 	}
 
 	if namespace == "" {

@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-var example = "create project {projectName} {projectDesc} -n {namespace}    --创建一个项目\n" +
-	"create invites {projectName} {accessLevel[dev|main|owner]} {usernames1,usernames2}    --邀请一个用户进入项目"
+var createExample = "create project {projectName} {projectDesc} -n {namespace}    --创建一个项目\n" +
+	"create invites {projectName} {accessLevel[dev|main|owner]} {usernames1,usernames2}    --邀请一个用户进入项目 \n"
 
 var CreateCmd = &cobra.Command{
 	Use:       "create",
@@ -20,7 +20,7 @@ var CreateCmd = &cobra.Command{
 	ValidArgs: []string{"project"},
 	Args:      cobra.MatchAll(cobra.MinimumNArgs(3)),
 	Long:      "诸如创建一些资源类的信息，譬如project等",
-	Example:   example,
+	Example:   createExample,
 	Run:       createFunc,
 }
 

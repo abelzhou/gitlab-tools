@@ -8,10 +8,16 @@ import (
 	"os"
 )
 
+var example = getExample + createExample
+
 func Execute() {
 	GetInit()
 	CreateInit()
-	var rootCmd = &cobra.Command{Use: "app", Args: cobra.MinimumNArgs(1)}
+	var rootCmd = &cobra.Command{
+		Use:     "app",
+		Args:    cobra.MinimumNArgs(1),
+		Example: example,
+	}
 	rootCmd.AddCommand(GetCmd)
 	rootCmd.AddCommand(CreateCmd)
 	err := rootCmd.Execute()
