@@ -35,12 +35,8 @@ func GetProject(keyword string, namespace string, printFlag bool, split string) 
 
 	}
 
-	if namespace == "" {
-		return allListProject
-	}
-
 	for i := 0; i < len(allListProject); i++ {
-		if allListProject[i].Namespace.Name != namespace {
+		if namespace != "" && allListProject[i].Namespace.Name != namespace {
 			continue
 		}
 		retListProject = append(retListProject, allListProject[i])
