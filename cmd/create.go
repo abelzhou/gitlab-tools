@@ -38,7 +38,7 @@ func createFunc(cmd *cobra.Command, args []string) {
 		}
 		for i, projectName := range projectNameList {
 			name := strings.TrimSpace(projectName)
-			if name != "" {
+			if name == "" {
 				fmt.Println(fmt.Sprintf("第%d个项目名为空", i))
 				return
 			}
@@ -49,10 +49,10 @@ func createFunc(cmd *cobra.Command, args []string) {
 			fmt.Println(cmd.UsageString())
 			return
 		}
-		projectName := strings.TrimSpace(args[1])
+		projectNameList := strings.Split(strings.TrimSpace(args[1]), ",")
 		accessLevel := strings.TrimSpace(args[2])
 		usernames := strings.TrimSpace(args[3])
-		if usernames == "" || accessLevel == "" || projectName == "" {
+		if usernames == "" || accessLevel == "" || len(projectNameList) == 0 {
 			fmt.Println(cmd.UsageString())
 			return
 		}
@@ -65,7 +65,15 @@ func createFunc(cmd *cobra.Command, args []string) {
 			currentAccessLevel = v
 		}
 
-		gitlab.AddInvites(projectName, currentAccessLevel, usernames)
+		for i, projectName := range projectNameList {
+			name := strings.TrimSpace(projectName)
+			if name == "" {
+				fmt.Println(fmt.Sprintf("第%d个项目名为空", i))
+				return
+			}
+			gitlab.AddInvites(name, currentAccessLevel, usernames)
+		}
+
 	default:
 		fmt.Println(cmd.UsageString())
 	}
