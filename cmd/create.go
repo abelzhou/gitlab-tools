@@ -32,7 +32,18 @@ func createFunc(cmd *cobra.Command, args []string) {
 			fmt.Println(cmd.UsageString())
 			return
 		}
-		gitlab.CreateProject(namespace, args[1], args[2])
+		projectNameList := strings.Split(args[1], ",")
+		if projectNameList == nil || len(projectNameList) == 0 {
+			return
+		}
+		for i, projectName := range projectNameList {
+			name := strings.TrimSpace(projectName)
+			if name != "" {
+				fmt.Println(fmt.Sprintf("第%d个项目名为空", i))
+				return
+			}
+			gitlab.CreateProject(namespace, args[1], args[2])
+		}
 	case "invites":
 		if len(args) < 4 {
 			fmt.Println(cmd.UsageString())
