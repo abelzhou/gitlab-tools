@@ -35,9 +35,21 @@ func GetProject(keyword string, namespace string, printFlag bool, split string) 
 
 	}
 
+	isPrefix := strings.HasSuffix(namespace, "/")
+	if isPrefix {
+		namespace = namespace[:len(namespace)-1]
+	}
+
 	for i := 0; i < len(allListProject); i++ {
-		if namespace != "" && allListProject[i].Namespace.Name != namespace {
-			continue
+
+		namespacePathList := strings.Split(allListProject[i].Namespace.FullPath, "/")
+		if namespace != "" {
+			if isPrefix && namespacePathList[0] != namespace {
+				continue
+			}
+			if !isPrefix && allListProject[i].Namespace.Name != namespace {
+				continue
+			}
 		}
 		retListProject = append(retListProject, allListProject[i])
 		if printFlag {
