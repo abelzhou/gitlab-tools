@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-var createExample = "create project {projectName} {projectDesc} -n {namespace}    --创建一个项目\n" +
-	"create invites {projectName} {accessLevel[rep|dev|main|owner]} {usernames1,usernames2}    --邀请一个用户进入项目 \n"
+var createExample = "create project {projectName1,projectName2,projectName3} {projectDesc} -n {namespace}    --创建一个或多个项目\n" +
+	"create invites {projectName1,projectName2,projectName3} {accessLevel[rep|dev|main|owner]} {usernames1,usernames2}    --邀请用户进入项目 \n"
 
 var CreateCmd = &cobra.Command{
 	Use:       "create",

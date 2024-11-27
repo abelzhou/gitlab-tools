@@ -10,7 +10,8 @@ import (
 )
 
 var getExample = "get project -n namespace    --获取命名空间下的全部项目\n" +
-	"get project {projectKeyword} -n namespace    --获取明明空间下的模糊匹配项目\n" +
+	"get project {projectKeyword} -n namespace    --获取命名空间下的模糊匹配项目\n" +
+	"get project {projectKeyword} -n namespace/   --递归获取命名空间下所有模糊匹配项目\n" +
 	"get namespace {namespaceKeyword}    --查找命名空间\n" +
 	"get user {username}    --查找用户\n" +
 	"get projectuser {projectKeyword}    --获取项目的全部用户\n" +
