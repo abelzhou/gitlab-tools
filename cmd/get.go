@@ -9,20 +9,20 @@ import (
 	"gt/pkg/gitlab"
 )
 
-var getExample = "get project -n namespace    --获取命名空间下的全部项目\n" +
-	"get project {projectKeyword} -n namespace    --获取命名空间下的模糊匹配项目\n" +
-	"get project {projectKeyword} -n namespace/   --递归获取命名空间下所有模糊匹配项目\n" +
-	"get namespace {namespaceKeyword}    --查找命名空间\n" +
-	"get user {username}    --查找用户\n" +
-	"get projectuser {projectKeyword}    --获取项目的全部用户\n" +
-	"get userproject {userKeyword} -n namespace   --获取用户参与的全部项目（性能较慢）\n"
+var getExample = "get project -n namespace    --Get all projects in namespace\n" +
+	"get project {projectKeyword} -n namespace    --Get fuzzy matching projects in namespace\n" +
+	"get project {projectKeyword} -n namespace/   --Recursively get all fuzzy matching projects in namespace\n" +
+	"get namespace {namespaceKeyword}    --Find namespace\n" +
+	"get user {username}    --Find user\n" +
+	"get projectuser {projectKeyword}    --Get all users in project\n" +
+	"get userproject {userKeyword} -n namespace   --Get all projects user participates in (slower performance)\n"
 
 var GetCmd = &cobra.Command{
 	Use:       "get",
-	Short:     "获取信息",
+	Short:     "Get information",
 	ValidArgs: []string{"project", "namespace", "user", "projectuser", "userproject"},
 	Args:      cobra.MatchAll(cobra.MinimumNArgs(1)),
-	Long:      "诸如一些资源类的信息，譬如project等",
+	Long:      "Get resource information, such as projects, etc.",
 	Example:   getExample,
 	Run:       getFunc,
 }
@@ -54,6 +54,6 @@ func getFunc(cmd *cobra.Command, args []string) {
 }
 
 func GetInit() {
-	GetCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "命名空间")
-	GetCmd.PersistentFlags().StringVarP(&split, "split", "s", "::", "分隔符")
+	GetCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Namespace")
+	GetCmd.PersistentFlags().StringVarP(&split, "split", "s", "::", "Separator")
 }

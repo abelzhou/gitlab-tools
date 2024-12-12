@@ -23,7 +23,7 @@ func init() {
 	client.SetJSONEscapeHTML(false)
 }
 
-// GetRequest 发送get请求
+// GetRequest sends a GET request
 func GetRequest(url string, resp interface{}) error {
 	token := viper.GetString(consts.GITLIB_TOKEN)
 	authorization = "Bearer " + token

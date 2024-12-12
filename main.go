@@ -16,11 +16,11 @@ func init() {
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Println("没有找到配置文件")
+			log.Println("Configuration file not found")
 		} else {
-			log.Println("配置文件读取错误")
+			log.Println("Error reading configuration file")
 		}
-		log.Fatal(err) // 读取配置文件失败致命错误
+		log.Fatal(err) // Fatal error: failed to read configuration file
 	}
 }
 func main() {

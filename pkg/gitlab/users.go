@@ -30,7 +30,7 @@ func GetUsers(username string, printFlag bool) []*gitlab.User {
 		}
 		if printFlag {
 			for i := 0; i < len(listUsers); i++ {
-				lastSignInTime := "未登录过"
+				lastSignInTime := "Never logged in"
 				if listUsers[i].LastSignInAt != nil {
 					lastSignInTime = listUsers[i].LastSignInAt.Format("20060102")
 				}
@@ -52,7 +52,7 @@ func GetUsers(username string, printFlag bool) []*gitlab.User {
 func GetUserProject(username, namespace string, printFlag bool, split string) []*gitlab.Project {
 	var respListProject []*gitlab.Project
 
-	//确认用户名是否正确
+	// Verify username is correct
 	currentUser := getOneUserByUsername(username)
 	if currentUser == nil {
 		return respListProject
@@ -63,9 +63,9 @@ func GetUserProject(username, namespace string, printFlag bool, split string) []
 		return respListProject
 	}
 
-	//获得全部项目
+	// Get all projects
 	listProject := GetProject("", namespace, false, "::")
-	//获得项目下的全部成员
+	// Get all members of the project
 	for _, project := range listProject {
 		listUser, resp, err := gitlabClient.Projects.ListProjectsUsers(project.ID, &gitlab.ListProjectUserOptions{ListOptions: gitlab.ListOptions{PerPage: 9999}})
 		if err != nil {
@@ -75,11 +75,11 @@ func GetUserProject(username, namespace string, printFlag bool, split string) []
 			continue
 		}
 		for _, user := range listUser {
-			//用户不在项目里
+			// User not in project
 			if user.Username != currentUser.Username {
 				continue
 			}
-			//用户状态是blocked
+			// User status is blocked
 			if user.State == "blocked" {
 				continue
 			}
@@ -94,7 +94,7 @@ func GetUserProject(username, namespace string, printFlag bool, split string) []
 	return respListProject
 }
 
-// 精确获得用户
+// Get user by exact match
 func getOneUserByUsername(username string) *gitlab.User {
 	listUsers := GetUsers(username, false)
 	var currentUser *gitlab.User
@@ -104,7 +104,7 @@ func getOneUserByUsername(username string) *gitlab.User {
 		}
 	}
 	if currentUser == nil {
-		fmt.Println(fmt.Sprintf("没找到用户: %s ,检索到的可能用户如下：", username))
+		fmt.Println(fmt.Sprintf("User not found: %s, possible matches below:", username))
 		for i := 0; i < len(listUsers); i++ {
 			fmt.Println(fmt.Sprintf("%s", listUsers[i].Username))
 		}

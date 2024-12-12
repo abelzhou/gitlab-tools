@@ -65,27 +65,27 @@ func CreateProject(namespace, name, desc string) {
 	name = strings.TrimSpace(name)
 	desc = strings.TrimSpace(desc)
 	if len(name) == 0 {
-		fmt.Println("项目名称不能为空")
+		fmt.Println("Project name cannot be empty")
 		return
 	}
 	if len(desc) == 0 {
-		fmt.Println("项目描述不能为空")
+		fmt.Println("Project description cannot be empty")
 		return
 	}
 
-	//查询namespace
+	// Query namespace
 	namespaceList, resp, err := gitlabClient.Namespaces.SearchNamespace(namespace)
 	if err != nil {
-		fmt.Println("查询命名空间错误")
+		fmt.Println("Error querying namespace")
 		return
 	}
 	if resp.TotalItems <= 1 {
-		fmt.Println("未检索到命名空间")
+		fmt.Println("No namespace found")
 		return
 	}
 
 	if len(namespaceList) <= 1 {
-		fmt.Println("未检索到命名空间列表")
+		fmt.Println("No namespace list found")
 		return
 	}
 
@@ -98,7 +98,7 @@ func CreateProject(namespace, name, desc string) {
 	}
 
 	if namespaceObj == nil {
-		fmt.Println(fmt.Sprintf("未找到命名空间:%s", namespace))
+		fmt.Println(fmt.Sprintf("Namespace not found: %s", namespace))
 	}
 
 	p := &gitlab.CreateProjectOptions{
@@ -111,16 +111,16 @@ func CreateProject(namespace, name, desc string) {
 
 	project, resp, err := gitlabClient.Projects.CreateProject(p)
 	if err != nil {
-		fmt.Println("项目创建失败")
+		fmt.Println("Project creation failed")
 		fmt.Println(err.Error())
 		return
 	}
 	if project.ID != 0 {
-		fmt.Println(fmt.Sprintf("项目创建成功! \nNAME: %s \nNAMESPACE: %s \nID: %d \nPATH: %s ", project.Name, project.Namespace.Name, project.ID, project.WebURL))
+		fmt.Println(fmt.Sprintf("Project created successfully! \nNAME: %s \nNAMESPACE: %s \nID: %d \nPATH: %s ", project.Name, project.Namespace.Name, project.ID, project.WebURL))
 		return
 	}
 
-	fmt.Println("项目创建失败")
+	fmt.Println("Project creation failed")
 
 }
 
@@ -138,7 +138,7 @@ func GetProjectUser(projectName string) {
 		return
 	}
 	if resp.TotalItems == 0 {
-		fmt.Println("该项目不存在用户")
+		fmt.Println("No users exist in this project")
 		return
 	}
 	for i := 0; i < len(projectUsers); i++ {
@@ -154,23 +154,23 @@ func getOneProjectByName(projectName string) *gitlab.Project {
 		return nil
 	}
 	if resp.TotalItems == 0 {
-		fmt.Println("找不到对应的项目")
+		fmt.Println("Project not found")
 		return nil
 	}
 	if len(listProject) < 1 {
-		fmt.Println("找不到对应的项目列表")
+		fmt.Println("Project list not found")
 		return nil
 	}
 
 	var currentProject *gitlab.Project
 	for i := 0; i < len(listProject); i++ {
-		// 有些项目建立后前后有空格情况
+		// Some projects may have leading/trailing spaces after creation
 		if strings.TrimSpace(listProject[i].Name) == projectName {
 			currentProject = listProject[i]
 		}
 	}
 	if currentProject == nil {
-		fmt.Println("没有匹配到项目，检查是否为如下项目：")
+		fmt.Println("No matching projects found, check if it's one of the following:")
 		for i := 0; i < len(listProject); i++ {
 			fmt.Println(fmt.Sprintf("%d %s %s", listProject[i].ID, listProject[i].Namespace.Name, listProject[i].Name))
 		}
@@ -195,7 +195,7 @@ func AddInvites(projectName string, accessLevel *gitlab.AccessLevelValue, userna
 	}
 
 	if len(listRequiredUsername) == 0 || len(listRequiredUsername) != len(listUsername) {
-		fmt.Println("添加失败")
+		fmt.Println("Addition failed")
 		return
 	}
 
@@ -214,7 +214,7 @@ func AddInvites(projectName string, accessLevel *gitlab.AccessLevelValue, userna
 	if ret != nil {
 		fmt.Println(fmt.Sprintf("%s \n %v", ret.Status, ret.Message))
 	} else {
-		fmt.Println("添加失败！")
+		fmt.Println("Addition failed!")
 	}
 }
 
@@ -238,7 +238,7 @@ func printProjectInfo(project *gitlab.Project, split string) {
 	)
 }
 
-// 根据用户名获取用户下的项目 (未完成)
+// Get projects under a user (Not implemented)
 func GetProjectByUserName(username string) {
 	currentUser := getOneUserByUsername(username)
 	if currentUser == nil {
